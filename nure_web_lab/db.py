@@ -5,8 +5,6 @@ So, `get_db` and `close_db` can be called only inside
 a request handling code.
 """
 
-import psycopg2
-
 import click
 from flask import (
     # A Flask app object is created by `flask run` script
@@ -21,6 +19,15 @@ from flask import (
     g,
 )
 from flask.cli import with_appcontext
+import psycopg2
+import psycopg2.extras
+
+
+USER_USERNAME_MAX_LENGTH = 150
+USER_PASSWORD_MAX_LENGTH = 128
+USER_FULL_NAME_MAX_LENGTH = 180
+
+GROUP_NAME_MAX_LENGTH = 150
 
 
 def get_db_connection():
@@ -30,7 +37,8 @@ def get_db_connection():
             user=current_app.config['DB_USER'],
             password=current_app.config['DB_PASSWORD'],
             host=current_app.config['DB_HOST'],
-            port=current_app.config['DB_PORT']
+            port=current_app.config['DB_PORT'],
+            cursor_factory=psycopg2.extras.DictCursor
         )
     return g.db_connection
 
