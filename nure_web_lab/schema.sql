@@ -1,0 +1,23 @@
+DROP TABLE IF EXISTS group_user;
+DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS "group";
+
+CREATE TABLE "user" (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(150) UNIQUE NOT NULL,
+    password VARCHAR(128) NOT NULL,
+    full_name VARCHAR(180) NOT NULL,
+    is_admin BOOLEAN NOT NULL,
+    joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "group" (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL
+);
+
+CREATE TABLE group_user (
+    user_id INT NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+    group_id INT NOT NULL REFERENCES "group" (id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, group_id)
+);
