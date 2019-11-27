@@ -54,6 +54,6 @@ def create_app(test_config=None):
     # Make `url_for('index')` work in the same way
     # as `url_for('user_list.get_list')`.
     # This is needed to be used within the `auth` blueprint.
-    app.add_url_rule('/', endpoint='index', view_func=user_list.get_list)
+    app.add_url_rule('/', endpoint='index', view_func=user_list.get_user_list)
 
     return app

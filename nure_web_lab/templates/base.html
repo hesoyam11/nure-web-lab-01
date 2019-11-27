@@ -9,7 +9,12 @@
     <h1>NURE Web Lab-01</h1>
     <ul>
         {% if g.user %}
-            <li><span>{{ g.user['username'] }}</span></li>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><span>
+                You are logged in as
+                {{ "an administrator" if g.user['is_admin'] else "a user" }}
+                {{ g.user['full_name'] }}
+            </span></li>
             <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
         {% else %}
             <li><a href="{{ url_for('auth.register') }}">Register</a></li>

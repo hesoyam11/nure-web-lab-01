@@ -1,14 +1,24 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}User List{% endblock %}</h1>
+    <h1>
+        {% block title %}
+            {% if not group %}
+                All Users
+            {% else %}
+                The {{ group['name'] }} Group
+            {% endif %}
+        {% endblock %}
+    </h1>
 {% endblock %}
 
 {% block content %}
     <ul>
         {% for user in users %}
             <li>
-                <p>{{ user['username'] }}</p>
+                <p><a href="{{ url_for('user_list.get_user_item', user_id=user['id']) }}">
+                    {{ user['username'] }}
+                </a></p>
                 <p>{{ user['full_name'] }}</p>
                 <p>Is admin: {{ user['is_admin'] }}</p>
                 <p>Joined on: {{ user['joined_at'].strftime('%Y-%m-%d') }}</p>

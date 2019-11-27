@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}{{ user['username'] }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <article>
+        <h2>Profile</h2>
+        <p>Username: {{ user['username'] }}</p>
+        <p>Full name: {{ user['full_name'] }}</p>
+        <p>Is admin: {{ user['is_admin'] }}</p>
+        <p>Joined on: {{ user['joined_at'].strftime('%Y-%m-%d') }}</p>
+
+        <h2>Groups</h2>
+        {% if not user_groups %}
+            <p>The user doesn't belong to any group right now.</p>
+        {% else %}
+            <ul>
+            {% for group in user_groups %}
+                <li>
+                    <p><a href="{{ url_for('user_list.get_user_list', group_id=group['id']) }}">
+                        {{ group['name'] }}
+                    </a></p>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </article>
+{% endblock %}
