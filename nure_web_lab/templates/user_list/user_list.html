@@ -13,6 +13,11 @@
 {% endblock %}
 
 {% block content %}
+    {% if not group %}
+        <p><a href="{{ url_for('user_list.create_user_item') }}">
+            Create
+        </a></p>
+    {% endif %}
     <ul>
         {% for user in users %}
             <li>

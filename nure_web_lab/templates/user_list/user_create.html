@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}New User{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <div>
+            <label for="username">Username</label>
+            <input name="username" id="username" required>
+        </div>
+        <div>
+            <label for="full_name">Full Name</label>
+            <input name="full_name" id="full_name" required>
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+        <div>
+            <label for="is_admin">Administrator</label>
+            <input type="checkbox" name="is_admin" id="is_admin">
+        </div>
+        <div>
+            <input type="submit" value="Create">
+        </div>
+    </form>
+{% endblock %}
