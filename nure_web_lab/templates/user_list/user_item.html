@@ -12,18 +12,24 @@
         <p>Is admin: {{ user['is_admin'] }}</p>
         <p>Joined on: {{ user['joined_at'].strftime('%Y-%m-%d') }}</p>
 
+        {% if g.user['is_admin'] %}
+            <form action="{{ url_for('user_list.delete_user_item', user_id=user['id']) }}" method="post">
+                <input type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+            </form>
+        {% endif %}
+
         <h2>Groups</h2>
         {% if not user_groups %}
             <p>The user doesn't belong to any group right now.</p>
         {% else %}
             <ul>
-            {% for group in user_groups %}
-                <li>
-                    <p><a href="{{ url_for('user_list.get_user_list', group_id=group['id']) }}">
-                        {{ group['name'] }}
-                    </a></p>
-                </li>
-            {% endfor %}
+                {% for group in user_groups %}
+                    <li>
+                        <p><a href="{{ url_for('user_list.get_user_list', group_id=group['id']) }}">
+                            {{ group['name'] }}
+                        </a></p>
+                    </li>
+                {% endfor %}
             </ul>
         {% endif %}
     </article>

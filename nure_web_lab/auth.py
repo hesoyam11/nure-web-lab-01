@@ -1,8 +1,9 @@
 import functools
 
 from flask import (
-    Blueprint, flash, g, redirect, request, session, url_for,
-    render_template)
+    abort, Blueprint, flash, g, redirect, request, session, url_for,
+    render_template
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import nure_web_lab.db as db
@@ -22,6 +23,18 @@ def login_required(view):
     def wrapped_view(**kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))
+
+        return view(**kwargs)
+
+    return wrapped_view
+
+
+def admin_required(view):
+    @functools.wraps(view)
+    @login_required
+    def wrapped_view(**kwargs):
+        if not g.user['is_admin']:
+            abort(403)
 
         return view(**kwargs)
 

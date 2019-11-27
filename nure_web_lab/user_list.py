@@ -1,9 +1,9 @@
 from flask import (
-    abort, Blueprint, render_template, request
+    abort, Blueprint, redirect, render_template, request, url_for
 )
 
 from . import db
-from auth import login_required
+from auth import admin_required, login_required
 
 bp = Blueprint('user_list', __name__, url_prefix='/users')
 
@@ -48,10 +48,7 @@ def get_user_list():
     return render_template('user_list/user_list.html', users=users, group=group)
 
 
-@bp.route('/<int:user_id>')
-@login_required
-def get_user_item(user_id: int):
-    cursor = db.get_db_connection().cursor()
+def get_user_or_404(user_id: int, cursor):
     cursor.execute(
         'SELECT id, username, full_name, is_admin, joined_at'
         ' FROM "user" WHERE id = %s', (user_id,)
@@ -60,6 +57,15 @@ def get_user_item(user_id: int):
 
     if not user:
         abort(404)
+
+    return user
+
+
+@bp.route('/<int:user_id>')
+@login_required
+def get_user_item(user_id: int):
+    cursor = db.get_db_connection().cursor()
+    user = get_user_or_404(user_id, cursor)
 
     cursor.execute(
         'SELECT g.id, g.name FROM group_user gu INNER JOIN "group" g'
@@ -72,3 +78,16 @@ def get_user_item(user_id: int):
         'user_list/user_item.html',
         user=user, user_groups=user_groups
     )
+
+
+@bp.route('/<int:user_id>/delete', methods=('POST',))
+@admin_required
+def delete_user_item(user_id: int):
+    connection = db.get_db_connection()
+    cursor = connection.cursor()
+    user = get_user_or_404(user_id, cursor)
+
+    cursor.execute('DELETE FROM "user" WHERE id = %s', (user['id'],))
+    connection.commit()
+
+    return redirect(url_for('index'))
