@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}User List{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <ul>
+        {% for user in users %}
+            <li>
+                <p>{{ user['username'] }}</p>
+                <p>{{ user['full_name'] }}</p>
+                <p>Is admin: {{ user['is_admin'] }}</p>
+                <p>Joined on: {{ user['joined_at'].strftime('%Y-%m-%d') }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
