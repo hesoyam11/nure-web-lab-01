@@ -131,6 +131,34 @@ def get_user_item(user_id: int):
     )
 
 
+@bp.route('/<int:user_id>/edit', methods=('GET', 'POST'))
+@admin_required
+def edit_user_item(user_id: int):
+    cursor = db.get_db_connection().cursor()
+    user = get_user_or_404(user_id, cursor)
+
+    if request.method == 'POST':
+        return "WIP"
+
+    cursor.execute(
+        'SELECT g.id, g.name FROM group_user gu INNER JOIN "group" g'
+        ' ON gu.user_id = %s AND gu.group_id = g.id',
+        (user_id,)
+    )
+    user_groups = cursor.fetchall()
+    user_group_ids = [user_group['id'] for user_group in user_groups]
+
+    cursor.execute(
+        'SELECT id, name FROM "group"'
+    )
+    groups = cursor.fetchall()
+
+    return render_template(
+        'user_list/user_edit.html',
+        user=user, user_group_ids=user_group_ids, groups=groups
+    )
+
+
 @bp.route('/<int:user_id>/delete', methods=('POST',))
 @admin_required
 def delete_user_item(user_id: int):

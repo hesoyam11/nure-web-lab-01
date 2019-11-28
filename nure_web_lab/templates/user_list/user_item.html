@@ -13,6 +13,9 @@
         <p>Joined on: {{ user['joined_at'].strftime('%Y-%m-%d') }}</p>
 
         {% if g.user['is_admin'] %}
+            <a href="{{ url_for('user_list.edit_user_item', user_id=user['id']) }}">
+                <button>Edit</button>
+            </a>
             <form action="{{ url_for('user_list.delete_user_item', user_id=user['id']) }}" method="post">
                 <input type="submit" value="Delete" onclick="return confirm('Are you sure?');">
             </form>
