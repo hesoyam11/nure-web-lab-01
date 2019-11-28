@@ -7,11 +7,6 @@
 {% block content %}
     <form method="post">
         <div>
-            <label for="username">Username</label>
-            <input name="username" id="username"
-                   value="{{ user['username'] }}" required>
-        </div>
-        <div>
             <label for="full_name">Full Name</label>
             <input name="full_name" id="full_name"
                    value="{{ user['full_name'] }}" required>
@@ -23,11 +18,10 @@
         </div>
         <div>
             <label for="groups_select">Groups</label>
-            <select multiple name="groups" id="groups_select">
+            <select multiple name="user_groups" id="groups_select">
                 {% for group in groups %}
                     <option
                             value="{{ group['id'] }}"
-                            name="user_groups"
                             {{ "selected" if group['id'] in user_group_ids }}
                     >
                         {{ group['name'] }}

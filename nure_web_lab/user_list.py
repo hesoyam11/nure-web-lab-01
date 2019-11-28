@@ -1,6 +1,7 @@
 from flask import (
     abort, Blueprint, flash, redirect, render_template, request, url_for
 )
+from psycopg2.extras import execute_values
 from werkzeug.security import generate_password_hash
 
 from . import db
@@ -134,28 +135,73 @@ def get_user_item(user_id: int):
 @bp.route('/<int:user_id>/edit', methods=('GET', 'POST'))
 @admin_required
 def edit_user_item(user_id: int):
-    cursor = db.get_db_connection().cursor()
+    connection = db.get_db_connection()
+    cursor = connection.cursor()
+
     user = get_user_or_404(user_id, cursor)
 
-    if request.method == 'POST':
-        return "WIP"
+    # Select all groups from the database.
+    cursor.execute(
+        'SELECT id, name FROM "group"'
+    )
+    groups = cursor.fetchall()
+    group_ids = [group['id'] for group in groups]
 
+    # Select groups of a user to which he already belongs.
     cursor.execute(
         'SELECT g.id, g.name FROM group_user gu INNER JOIN "group" g'
         ' ON gu.user_id = %s AND gu.group_id = g.id',
         (user_id,)
     )
-    user_groups = cursor.fetchall()
-    user_group_ids = [user_group['id'] for user_group in user_groups]
+    old_user_groups = cursor.fetchall()
+    old_user_group_ids = [user_group['id'] for user_group in old_user_groups]
 
-    cursor.execute(
-        'SELECT id, name FROM "group"'
-    )
-    groups = cursor.fetchall()
+    if request.method == 'POST':
+        full_name = request.form.get('full_name')
+        is_admin = bool(request.form.get('is_admin'))
+        new_user_group_ids = request.form.getlist('user_groups')
+
+        are_new_group_ids_valid = True
+        for new_user_group_id in new_user_group_ids:
+            try:
+                new_user_group_id = int(new_user_group_id)
+            except ValueError:
+                are_new_group_ids_valid = False
+                break
+            if new_user_group_id not in group_ids:
+                are_new_group_ids_valid = False
+                break
+
+        error = None
+
+        if not full_name:
+            error = 'Full name is required.'
+        elif len(full_name) > db.USER_FULL_NAME_MAX_LENGTH:
+            error = 'Full name is too long.'
+        elif not are_new_group_ids_valid:
+            error = 'Provided new groups are invalid.'
+
+        if error is None:
+            cursor.execute(
+                'UPDATE "user" SET (full_name, is_admin) = (%s, %s)'
+                ' WHERE id = %s', (full_name, is_admin, user_id)
+            )
+            cursor.execute(
+                'DELETE FROM group_user WHERE user_id = %s', (user_id,)
+            )
+            # A function from `psycopg2.extras` to insert many rows at once.
+            execute_values(
+                cursor, 'INSERT INTO group_user (user_id, group_id) VALUES %s',
+                [(user_id, group_id) for group_id in new_user_group_ids]
+            )
+            connection.commit()
+            return redirect(url_for('user_list.get_user_item', user_id=user_id))
+
+        flash(error)
 
     return render_template(
         'user_list/user_edit.html',
-        user=user, user_group_ids=user_group_ids, groups=groups
+        user=user, user_group_ids=old_user_group_ids, groups=groups
     )
 
 
