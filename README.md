@@ -17,6 +17,7 @@ pipenv shell
 
 Configure environment variables:
 ```bash
+export PYTHONPATH=nure_web_lab
 export FLASK_APP=nure_web_lab FLASK_ENV=development
 ```
 
